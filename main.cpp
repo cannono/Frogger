@@ -10,7 +10,19 @@ struct Player
 {
   int xpos, ypos;
 };
-
+/*
+bool collision(vector< vector<Sprite> > traffic, Sprite frog)
+{
+  for(int i = 0; i < traffic.size(); i++)
+  {
+    for(int k = 0; k < traffic[i].size(); k++)
+    {
+      if(traffic[i][k].getGlobalBounds().intersects(frog.getGlobalBounds())) return true;
+    }
+  }
+  return false;
+}
+*/
 int main()
 {
 
@@ -121,6 +133,18 @@ int main()
   truck.setPosition(850,650);
   trucks.push_back(truck);
 
+  vector< vector<Sprite> > floaties;
+  floaties.push_back(small_logs);
+  floaties.push_back(medium_logs);
+  floaties.push_back(large_logs);
+
+  vector< vector<Sprite> > traffic;
+  traffic.push_back(trucks);
+  traffic.push_back(motos);
+  traffic.push_back(carTwos);
+  traffic.push_back(carOnes);
+  traffic.push_back(trailers);
+
 
 
   frog.setPosition(Frogger.xpos, Frogger.ypos);
@@ -155,7 +179,7 @@ int main()
 
       window.clear();
       window.draw(background);
-
+/*
       for(int i=0; i < medium_logs.size(); i++)
       {
         window.draw(medium_logs[i]);
@@ -176,7 +200,8 @@ int main()
         small_logs[j].move(1,0);
         if(small_logs[j].getPosition().x >= 950) small_logs[j].setPosition(-100,200);
       }
-
+      */
+/*
       for(int l=0; l < trailers.size(); l++)
       {
         window.draw(trailers[l]);
@@ -211,12 +236,107 @@ int main()
         trucks[d].move(-3,0);
         if(trucks[d].getPosition().x <= 0) trucks[d].setPosition(1050,350);
       }
+*/
+      int deltaX = 0;
+      bool safe = false;
+      for(int i =0; i < floaties.size(); ++i)
+      {
+        for(int k =0; k < floaties[i].size(); ++k)
+        {
+          window.draw(floaties[i][k]);
+
+          if(i == 0)
+          {
+            floaties[i][k].move(1,0);
+            if(floaties[i][k].getPosition().x >= 950) floaties[i][k].setPosition(-100,200);
+            deltaX = 1;
+          }
+          if(i == 1)
+          {
+            floaties[i][k].move(2,0);
+            if(floaties[i][k].getPosition().x >= 950)floaties[i][k].setPosition(-150,50);
+            deltaX = 2;
+          }
+          if(i == 2)
+          {
+            floaties[i][k].move(3,0);
+            if(floaties[i][k].getPosition().x >= 950) floaties[i][k].setPosition(-250,150);
+            deltaX = 3;
+          }
+          if(floaties[i][k].getGlobalBounds().intersects(frog.getGlobalBounds()))
+          {
+            safe = true;
+            Frogger.xpos += deltaX;
+            cout << "deltaX: " << deltaX;
+          }
+        }
+      }
+      //frog.move(10, 0);
+      //Frogger.xpos += deltaX
+      //cout << "deltaX: " << deltaX << endl;
+      int ypos = frog.getPosition().y;
+      int xpos = frog.getPosition().x;
+
+      if(ypos < 300 && safe == false)
+      {
+        //cout << "game over" << endl;
+      }
+      safe = false;
 
 
+      if(xpos > 900) Frogger.xpos = 900;
+      if(xpos < 0) Frogger.xpos = 0;
+
+
+
+      for(int i = 0; i < traffic.size(); ++i)
+      {
+        for(int k =0; k < traffic[i].size(); ++k)
+        {
+          window.draw(traffic[i][k]);
+          if(traffic[i][k].getGlobalBounds().intersects(frog.getGlobalBounds()))
+          {
+            cout << "Game Over" << endl;
+            return 0;
+          }
+
+          if(i == 0) //Trucks
+          {
+            traffic[i][k].move(-3,0);
+            if(traffic[i][k].getPosition().x <= 0) traffic[i][k].setPosition(1050,350);
+          }
+          if(i == 1) //Motos
+          {
+            traffic[i][k].move(3,0);
+            if(traffic[i][k].getPosition().x >= 950) traffic[i][k].setPosition(-50,400);
+          }
+          if(i == 2) //CarTwos
+          {
+            traffic[i][k].move(1,0);
+            if(traffic[i][k].getPosition().x >= 950) traffic[i][k].setPosition(-50,500);
+          }
+          if(i == 3) //CarOnes
+          {
+            traffic[i][k].move(-1,0);
+            if(traffic[i][k].getPosition().x <= 0) traffic[i][k].setPosition(1000,450);
+          }
+          if(i == 4) //Trailers
+          {
+            traffic[i][k].move(-2,0);
+            if(traffic[i][k].getPosition().x <= 0) traffic[i][k].setPosition(1050,550);
+          }
+        }
+      }
 
 
       window.draw(frog);
-
+      /*
+      if(collision(traffic, frog))
+      {
+        cout << "Game Over" << endl;
+        return 0;
+      }
+      */
       window.display();
 
 
