@@ -10,29 +10,33 @@ struct Player
 {
   int xpos, ypos;
 };
-/*
-bool collision(vector< vector<Sprite> > traffic, Sprite frog)
+
+void load_time(vector<Sprite> &thyme, Sprite bar, Sprite time_)
 {
-  for(int i = 0; i < traffic.size(); i++)
+  thyme.erase(thyme.begin(), thyme.begin() + thyme.size());
+  thyme.push_back(time_);
+  for(int i = 0; i <= 20; ++i)
   {
-    for(int k = 0; k < traffic[i].size(); k++)
-    {
-      if(traffic[i][k].getGlobalBounds().intersects(frog.getGlobalBounds())) return true;
-    }
+    bar.setPosition(950 - (i*10),650);
+    thyme.push_back(bar);
   }
-  return false;
 }
-*/
+
+
+void reset_frog(Player &Frogger)
+{
+  Frogger.xpos = 450;
+  Frogger.ypos = 600;
+}
+
 int main()
 {
 
-
-
-  RenderWindow window(VideoMode(950,650), "Frogger");
+  RenderWindow window(VideoMode(950,700), "Frogger");
 
   //Clock clock;
 
-  Texture t1, t2, t3, t4, t5, t6, t7, t8, t9, t10;
+  Texture t1, t2, t3, t4, t5, t6, t7, t8, t9, t10, t11, t12, t13, t14, t15;
   if(!t1.loadFromFile("textures/background.png")) cout << "Loading texture failed" << endl;
   else t1.loadFromFile("textures/background.png");
 
@@ -63,11 +67,33 @@ int main()
   if(!t10.loadFromFile("textures/truck.png")) cout << "Loading texture failed" << endl;
   else t10.loadFromFile("textures/truck.png");
 
+  if(!t11.loadFromFile("textures/lilly2.png")) cout << "Loading texture failed" << endl;
+  else t11.loadFromFile("textures/lilly2.png");
+
+  if(!t12.loadFromFile("textures/lilly3.png")) cout << "Loading texture failed" << endl;
+  else t12.loadFromFile("textures/lilly3.png");
+
+  if(!t13.loadFromFile("textures/game-over.png")) cout << "Loading texture failed" << endl;
+  else t13.loadFromFile("textures/game-over.png");
+
+  if(!t14.loadFromFile("textures/bar.png")) cout << "Loading texture failed" << endl;
+  else t14.loadFromFile("textures/bar.png");
+
+  if(!t15.loadFromFile("textures/time.png")) cout << "Loading texture failed" << endl;
+  else t15.loadFromFile("textures/time.png");
+
   Sprite background(t1);
+  Sprite gameOver(t13);
+  Sprite bar(t14);
+  Sprite time_(t15);
+
+
   Sprite frog(t2);
   Sprite log3(t3);
   Sprite log4(t4);
   Sprite log_2(t5);
+  Sprite lilly2(t11);
+  Sprite lilly3(t12);
 
   Sprite trailer(t6);
   Sprite car1(t7);
@@ -99,44 +125,64 @@ int main()
   log_2.setPosition(100,200);
   small_logs.push_back(log_2);
 
+  vector<Sprite> small_lilly;
+  lilly2.setPosition(50,100);
+  small_lilly.push_back(lilly2);
+  lilly2.setPosition(350,100);
+  small_lilly.push_back(lilly2);
+  lilly2.setPosition(650,100);
+  small_lilly.push_back(lilly2);
+  lilly2.setPosition(900,100);
+  small_lilly.push_back(lilly2);
+
+  vector<Sprite> med_lilly;
+  lilly3.setPosition(150,250);
+  med_lilly.push_back(lilly3);
+  lilly3.setPosition(500,250);
+  med_lilly.push_back(lilly3);
+  lilly3.setPosition(800,250);
+  med_lilly.push_back(lilly3);
+
   vector<Sprite> trailers;
-  trailer.setPosition(700,850);
+  trailer.setPosition(700,550);
   trailers.push_back(trailer);
-  trailer.setPosition(200,850);
+  trailer.setPosition(200,550);
   trailers.push_back(trailer);
 
   vector<Sprite> carOnes;
-  car1.setPosition(400,800);
+  car1.setPosition(400,500);
   carOnes.push_back(car1);
-  car1.setPosition(650,800);
+  car1.setPosition(650,500);
   carOnes.push_back(car1);
 
   vector<Sprite> carTwos;
-  car2.setPosition(100,750);
+  car2.setPosition(100,450);
   carTwos.push_back(car2);
-  car2.setPosition(450,750);
+  car2.setPosition(450,450);
   carTwos.push_back(car2);
-  car2.setPosition(800,750);
+  car2.setPosition(800,450);
   carTwos.push_back(car2);
 
   vector<Sprite> motos;
-  moto.setPosition(150,700);
+  moto.setPosition(150,400);
   motos.push_back(moto);
-  moto.setPosition(700,700);
+  moto.setPosition(700,400);
   motos.push_back(moto);
 
   vector<Sprite> trucks;
-  truck.setPosition(200,650);
+  truck.setPosition(200,350);
   trucks.push_back(truck);
-  truck.setPosition(650,650);
+  truck.setPosition(650,350);
   trucks.push_back(truck);
-  truck.setPosition(850,650);
+  truck.setPosition(850,350);
   trucks.push_back(truck);
 
   vector< vector<Sprite> > floaties;
   floaties.push_back(small_logs);
   floaties.push_back(medium_logs);
   floaties.push_back(large_logs);
+  floaties.push_back(med_lilly);
+  floaties.push_back(small_lilly);
 
   vector< vector<Sprite> > traffic;
   traffic.push_back(trucks);
@@ -145,16 +191,32 @@ int main()
   traffic.push_back(carOnes);
   traffic.push_back(trailers);
 
+  vector<Sprite> lives;
+  frog.setPosition(0,650);
+  lives.push_back(frog);
+  frog.setPosition(50,650);
+  lives.push_back(frog);
+  frog.setPosition(100,650);
+  lives.push_back(frog);
+
+  vector<Sprite> safe_frogs;
+  time_.setPosition(570,650);
+  vector<Sprite> thyme;
+  load_time(thyme, bar, time_);
+
+
 
 
   frog.setPosition(Frogger.xpos, Frogger.ypos);
   background.setPosition(0,0);
-
+  gameOver.setPosition((background.getGlobalBounds().width - gameOver.getGlobalBounds().width)/2, (background.getGlobalBounds().height - gameOver.getGlobalBounds().height)/2);
+  Clock clock;
 
   window.setKeyRepeatEnabled(false);
   while (window.isOpen())
   {
     Event Event;
+    // Determines what key is pressed and adjusts the frogs position accordingly.
     while(window.pollEvent(Event))
     {
       switch (Event.type)
@@ -179,66 +241,11 @@ int main()
 
       window.clear();
       window.draw(background);
-/*
-      for(int i=0; i < medium_logs.size(); i++)
-      {
-        window.draw(medium_logs[i]);
-        medium_logs[i].move(2,0);
-        if(medium_logs[i].getPosition().x >= 950) medium_logs[i].setPosition(-150,50);
-      }
 
-      for(int k=0; k < large_logs.size(); k++)
-      {
-        window.draw(large_logs[k]);
-        large_logs[k].move(3,0);
-        if(large_logs[k].getPosition().x >= 950) large_logs[k].setPosition(-250,150);
-      }
-
-      for(int j=0; j < small_logs.size(); j++)
-      {
-        window.draw(small_logs[j]);
-        small_logs[j].move(1,0);
-        if(small_logs[j].getPosition().x >= 950) small_logs[j].setPosition(-100,200);
-      }
-      */
-/*
-      for(int l=0; l < trailers.size(); l++)
-      {
-        window.draw(trailers[l]);
-        trailers[l].move(-2,0);
-        if(trailers[l].getPosition().x <= 0) trailers[l].setPosition(1050,550);
-      }
-
-      for(int m=0; m < carTwos.size(); m++)
-      {
-        window.draw(carTwos[m]);
-        carTwos[m].move(1,0);
-        if(carTwos [m].getPosition().x >= 950) carTwos[m].setPosition(-50,500);
-      }
-
-      for(int p=0; p < carOnes.size(); p++)
-      {
-        window.draw(carOnes[p]);
-        carOnes[p].move(-1,0);
-        if(carOnes[p].getPosition().x <= 0) carOnes[p].setPosition(1000,450);
-      }
-
-      for(int t=0; t < motos.size(); t++)
-      {
-        window.draw(motos[t]);
-        motos[t].move(3,0);
-        if(motos[t].getPosition().x >= 950) motos[t].setPosition(-50,400);
-      }
-
-      for(int d=0; d < trucks.size(); d++)
-      {
-        window.draw(trucks[d]);
-        trucks[d].move(-3,0);
-        if(trucks[d].getPosition().x <= 0) trucks[d].setPosition(1050,350);
-      }
-*/
       int deltaX = 0;
       bool safe = false;
+
+      //Drawing logs and lillypads
       for(int i =0; i < floaties.size(); ++i)
       {
         for(int k =0; k < floaties[i].size(); ++k)
@@ -263,32 +270,71 @@ int main()
             if(floaties[i][k].getPosition().x >= 950) floaties[i][k].setPosition(-250,150);
             deltaX = 3;
           }
+          if(i == 3)
+          {
+            floaties[i][k].move(-2,0);
+            if(floaties[i][k].getPosition().x <= -150) floaties[i][k].setPosition(1100,250);
+            deltaX = -2;
+          }
+          if(i == 4)
+          {
+            floaties[i][k].move(-1,0);
+            if(floaties[i][k].getPosition().x <= -100) floaties[i][k].setPosition(1050,100);
+            deltaX = -1;
+          }
           if(floaties[i][k].getGlobalBounds().intersects(frog.getGlobalBounds()))
           {
             safe = true;
             Frogger.xpos += deltaX;
-            cout << "deltaX: " << deltaX;
           }
         }
       }
-      //frog.move(10, 0);
-      //Frogger.xpos += deltaX
-      //cout << "deltaX: " << deltaX << endl;
+
+
       int ypos = frog.getPosition().y;
       int xpos = frog.getPosition().x;
 
+      // Checks to see if the frog has found its home and if so it
+      if(ypos <= 0)
+      {
+        if(abs((xpos % 100)- 50) <= 10)
+        {
+
+          safe = true;
+          xpos = int(xpos / 100)*100 + 50;
+          for(int i = 0; i < safe_frogs.size(); ++i)
+          {
+            if(xpos == safe_frogs[i].getPosition().x) safe = false;
+          }
+          if(safe)
+          {
+            frog.setPosition(xpos, 0);
+            safe_frogs.push_back(frog);
+            reset_frog(Frogger);
+          }
+
+
+        }
+      }
+
+      // If the frog falls in the water subtract one life and reset postition
       if(ypos < 300 && safe == false)
       {
-        //cout << "game over" << endl;
+        lives.erase(lives.begin()+ lives.size()-1);
+        reset_frog(Frogger);
+        load_time(thyme, bar, time_);
+        clock.restart();
+
       }
       safe = false;
 
-
+      // Player can't move off the screen
       if(xpos > 900) Frogger.xpos = 900;
       if(xpos < 0) Frogger.xpos = 0;
+      if(ypos > 600) Frogger.ypos = 600;
 
 
-
+      //Drawing the traffic
       for(int i = 0; i < traffic.size(); ++i)
       {
         for(int k =0; k < traffic[i].size(); ++k)
@@ -296,8 +342,11 @@ int main()
           window.draw(traffic[i][k]);
           if(traffic[i][k].getGlobalBounds().intersects(frog.getGlobalBounds()))
           {
-            cout << "Game Over" << endl;
-            return 0;
+            lives.erase(lives.begin()+ lives.size()-1);
+            reset_frog(Frogger);
+            load_time(thyme, bar, time_);
+            clock.restart();
+
           }
 
           if(i == 0) //Trucks
@@ -328,21 +377,56 @@ int main()
         }
       }
 
+      // If there are no lives left then game over.
+      if(lives.size() < 1)
+      {
+        window.draw(gameOver);
+        window.display();
+        cout << "Game Over" << endl;
+        clock.restart();
+        while(clock.getElapsedTime().asSeconds() < 5)
+        {
+        }
+        return 0;
+
+      }
+
+      // Drawing lives
+      for(int i = 0; i < lives.size(); ++i)
+      {
+        window.draw(lives[i]);
+      }
+
+      // Drawing all the frogs that have found their homes.
+      for(int i = 0; i < safe_frogs.size(); ++i)
+      {
+        window.draw(safe_frogs[i]);
+      }
+
+      // Drawing the remaining time.
+      for(int i = 0; i < thyme.size(); ++i)
+      {
+        window.draw(thyme[i]);
+      }
+
+      if(clock.getElapsedTime().asSeconds() > 1)
+      {
+
+        thyme.erase(thyme.begin()+1);
+        if(thyme.size() <= 1)
+        {
+          lives.erase(lives.begin()+lives.size()-1);
+          load_time(thyme, bar, time_);
+          clock.restart();
+          reset_frog(Frogger);
+        }
+
+        clock.restart();
+      }
 
       window.draw(frog);
-      /*
-      if(collision(traffic, frog))
-      {
-        cout << "Game Over" << endl;
-        return 0;
-      }
-      */
       window.display();
 
-
     }
-
-
-
   return 0;
 }
